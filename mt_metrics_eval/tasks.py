@@ -360,7 +360,7 @@ class Task:
 
     if self.corr_fcn == 'accuracy':
       evs_list = [_Evs(lp) for lp in self.lang.split(',')]
-      res = data.CompareMetricsWithGlobalAccuracy(
+      res = data.CompareMetricsWithGlobalAccuracy(  # pytype: disable=wrong-arg-types
           evs_list, self.refs, self.close_refs, self.human,
           self.use_outliers, self.gold, self.primary,
           self.domain, self.k, psd, self.pval,
@@ -373,7 +373,7 @@ class Task:
           _Evs(self.lang), 'seg', self.refs, self.close_refs, self.human,
           self.use_outliers, self.gold, self.primary, self.domain,
           metric_format='spreadsheet')
-      res = data.CompareMetricsWithPairwiseConfidenceError(
+      res = data.CompareMetricsWithPairwiseConfidenceError(  # pytype: disable=wrong-arg-types
           corrs, self.k, psd, self.pval,
           self.replace_nans_with_zeros, self.perm_test,
           parallel_file=parallel_file, **self.corr_fcn_args)
@@ -383,7 +383,7 @@ class Task:
           _Evs(self.lang), self.level, self.refs, self.close_refs, self.human,
           self.use_outliers, self.gold, self.primary, self.domain,
           metric_format='spreadsheet')
-      res = data.CompareMetrics(
+      res = data.CompareMetrics(  # pytype: disable=wrong-arg-types
           corrs, corr_fcn, self.avg_by, self.k, psd, self.pval,
           self.replace_nans_with_zeros, self.perm_test,
           parallel_file=parallel_file, **self.corr_fcn_args)
