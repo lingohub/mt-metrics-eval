@@ -147,6 +147,11 @@ def filter_gold_nones(
   return zip(*filt)
 
 
+def is_constant_array(arr: ArrayLike) -> bool:
+  """Returns True if the array is the same value for all elements."""
+  return np.all(arr == arr[0])
+
+
 class AverageCorrelation:
   """Wrap a correlation function to provide averaging and None filtering."""
 
@@ -225,6 +230,17 @@ class AverageCorrelation:
           r1, r2 = filter_gold_nones(r1, r2)
           if not r1 or len(r1) == 1: continue
         ret = self._corr_fcn(r1, r2, **self._corr_fcn_args)
+
+        # In scipy 14.0, Pearson correlation was changed to return a value of 0
+        # if one of the input arrays is constant and Spearman was changed to
+        # return 1, whereas before the results would be NaN. In order to
+        # maintain backwards compatibility, we test for this case and set the
+        # value to NaN if it occurs. Note that the scipy change did not affect
+        # Kendall.
+        if self._corr_fcn in (scipy.stats.pearsonr, scipy.stats.spearmanr):
+          if is_constant_array(r1) or is_constant_array(r2):
+            ret = (np.nan, np.nan)
+
         if not self._macro:
           k = ret[2] if len(ret) > 2 else len(r1)
         if not math.isnan(ret[0]):
@@ -760,8 +776,14 @@ def PermutationSigDiff(
             KendallVariants(None, mscores[b: e], preproc=pp, **corr_fcn_args)[0]
             for (b, e), pp in zip(bounds, preprocs)]
       else:
-        vals = [corr_fcn(gold[b: e], mscores[b: e], **corr_fcn_args)[0]
-                for b, e in bounds]
+        vals = []
+        for b, e in bounds:
+          # See note in `AverageCorrelation` about Scipy 14.0.
+          val = corr_fcn(gold[b:e], mscores[b:e], **corr_fcn_args)[0]
+          if corr_fcn in (scipy.stats.pearsonr, scipy.stats.spearmanr):
+            if is_constant_array(gold[b:e]) or is_constant_array(mscores[b:e]):
+              val = np.nan
+          vals.append(val)
       if replace_nans_with_zeros:
         vals = np.nan_to_num(vals)
       else:
