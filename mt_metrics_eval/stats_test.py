@@ -37,6 +37,18 @@ class CorrelationTest(unittest.TestCase):
     self.assertAlmostEqual(corr.Pearson(average_by='sys')[0], 0.760, places=3)
     self.assertAlmostEqual(corr.Pearson(average_by='item')[0], 1.00, places=3)
 
+  def testPearsonPdp(self):
+    corr = stats.Correlation(2, [1, 2, 3, 4, 5, 6], [2, 1, 4, 3, 3, 7])
+    self.assertAlmostEqual(
+        corr.Pearson(average_by='item', pdp=True)[0], 0.926, places=3
+    )
+    self.assertAlmostEqual(
+        corr.Pearson(average_by='none', pdp=True)[0], 0.776, places=3
+    )
+    self.assertAlmostEqual(
+        corr.Pearson(average_by='sys', pdp=True)[0], 0.766, places=3
+    )
+
   def testKendall(self):
     corr = stats.Correlation(2, [1, 2, 3, 4, 5, 6], [2, 1, 4, 3, 3, 7])
     self.assertAlmostEqual(corr.Kendall(average_by='none')[0], 0.552, places=3)
@@ -46,11 +58,14 @@ class CorrelationTest(unittest.TestCase):
   def testKendallC(self):
     corr = stats.Correlation(2, [1, 2, 3, 4, 5, 6], [2, 1, 4, 3, 3, 7])
     self.assertAlmostEqual(
-        corr.Kendall(average_by='none', variant='c')[0], 0.556, places=3)
+        corr.Kendall(average_by='none', variant='c')[0], 0.556, places=3
+    )
     self.assertAlmostEqual(
-        corr.Kendall(average_by='sys', variant='c')[0], 0.611, places=3)
+        corr.Kendall(average_by='sys', variant='c')[0], 0.611, places=3
+    )
     self.assertAlmostEqual(
-        corr.Kendall(average_by='item', variant='c')[0], 1.00, places=3)
+        corr.Kendall(average_by='item', variant='c')[0], 1.00, places=3
+    )
 
   def testKendallLike(self):
     corr = stats.Correlation(1, [10, None, 100, 150], [2, 1, 4, 3])
@@ -76,7 +91,8 @@ class CorrelationTest(unittest.TestCase):
   def testKendallWithTiesOpt(self):
     corr = stats.Correlation(1, [1, 2, 2, 3, 4], [2, 1, 1.5, 5, 3])
     self.assertEqual(
-        corr.KendallWithTiesOpt(variant='acc23', sample_rate=1.0)[0], 0.7)
+        corr.KendallWithTiesOpt(variant='acc23', sample_rate=1.0)[0], 0.7
+    )
 
   def testPairwiseConfidenceError(self):
     corr = stats.Correlation(2, [1, 2, 3, 2, 3, 4], [2, 2, 4, 1, 3, 5])
@@ -103,8 +119,7 @@ class AverageCorrelationTest(unittest.TestCase):
 
   def testAverageBySystem(self):
     g, m = [1, 2, 3, 4, 5, 6], [2, 1, 8, 3, 5, 6]
-    cf = stats.AverageCorrelation(
-        pearson, num_sys=2, average_by='sys')
+    cf = stats.AverageCorrelation(pearson, num_sys=2, average_by='sys')
     p1 = pearson([1, 2, 3], [2, 1, 8])
     p2 = pearson([4, 5, 6], [3, 5, 6])
     c12 = cf(g, m)
@@ -113,8 +128,7 @@ class AverageCorrelationTest(unittest.TestCase):
 
   def testAverageByItem(self):
     g, m = [1, 2, 3, 4, 5, 6], [2, 1, 8, 3, 5, 6]
-    cf = stats.AverageCorrelation(
-        pearson, num_sys=2, average_by='item')
+    cf = stats.AverageCorrelation(pearson, num_sys=2, average_by='item')
     p1 = pearson([1, 4], [2, 3])
     p2 = pearson([2, 5], [1, 5])
     p3 = pearson([3, 6], [8, 6])
@@ -124,8 +138,7 @@ class AverageCorrelationTest(unittest.TestCase):
 
   def testAverageByItemWithMissingEntries(self):
     g, m = [1, None, 3, 4, 5, 6], [2, 1, 8, 3, 5, 6]
-    cf = stats.AverageCorrelation(
-        pearson, num_sys=2, average_by='item')
+    cf = stats.AverageCorrelation(pearson, num_sys=2, average_by='item')
     p1 = pearson([1, 4], [2, 3])
     p3 = pearson([3, 6], [8, 6])
     c12 = cf(g, m)
@@ -135,21 +148,22 @@ class AverageCorrelationTest(unittest.TestCase):
   def testNaNHandling(self):
     g, m = [1, 2, 3, 4, 5, 6], [2, 2, 2, 4, 5, 6]
     cf = stats.AverageCorrelation(
-        pearson, num_sys=2, average_by='sys',
-        replace_nans_with_zeros=False)
+        pearson, num_sys=2, average_by='sys', replace_nans_with_zeros=False
+    )
     self.assertAlmostEqual(cf(g, m)[0], 1.0)
 
   def testNaNHandlingWithZeros(self):
     g, m = [1, 2, 3, 4, 5, 6], [2, 2, 2, 4, 5, 6]
     cf = stats.AverageCorrelation(
-        pearson, num_sys=2, average_by='sys',
-        replace_nans_with_zeros=True)
+        pearson, num_sys=2, average_by='sys', replace_nans_with_zeros=True
+    )
     self.assertAlmostEqual(cf(g, m)[0], 0.5)
 
   def testMicroAveraging(self):
     g, m = [1, None, 3, 4, 5, 6], [2, 1, 8, 3, 5, 6]
     cf = stats.AverageCorrelation(
-        pearson, num_sys=2, average_by='sys', macro=False)
+        pearson, num_sys=2, average_by='sys', macro=False
+    )
     p1 = pearson([1, 3], [2, 8])
     p2 = pearson([4, 5, 6], [3, 5, 6])
     c12 = cf(g, m)
@@ -166,18 +180,126 @@ class AverageCorrelationTest(unittest.TestCase):
   def testKendallWithTiesOpt(self):
     g, m = [1, 2, 3, 4, None, 6], [2, 1, 8, 3, 5, 6]
     res = stats.AverageCorrelation(
-        stats.KendallWithTiesOpt, num_sys=2, average_by='sys', variant='acc23',
-        sample_rate=1.0)(g, m)
+        stats.KendallWithTiesOpt,
+        num_sys=2,
+        average_by='sys',
+        variant='acc23',
+        sample_rate=1.0,
+    )(g, m)
     ref = stats.KendallWithTiesOpt(
-        g, m, num_sys=2, average_by='sys', variant='acc23', sample_rate=1.0)
+        g, m, num_sys=2, average_by='sys', variant='acc23', sample_rate=1.0
+    )
     self.assertEqual(res[:2], ref[:2])
 
   def testPairwiseConfidenceError(self):
     g, m = [1, None, 3, 4, None, 6], [2, 1, 8, 3, 5, 6]
-    res = stats.AverageCorrelation(
-        stats.PairwiseConfidenceError, num_sys=2)(g, m)
+    res = stats.AverageCorrelation(stats.PairwiseConfidenceError, num_sys=2)(
+        g, m
+    )
     ref = stats.PairwiseConfidenceError(g, m, num_sys=2, filter_nones=True)
     self.assertEqual(res[0], ref[0])
+
+  def testPdpInvalidCorrFcn(self):
+    """Tests that PDP raises an error for non-Pearson correlations."""
+    with self.assertRaises(ValueError):
+      g, m = [1, 2, 3, 4], [1, 2, 3, 4]
+      cf = stats.AverageCorrelation(
+          kendall, num_sys=2, average_by='none', pdp=True
+      )
+      cf(g, m)
+
+  def testPdpWithAveragingAndNones(self):
+    """Tests PDP with averaging and missing gold scores."""
+    g, m = [1, 5, None, 10, 2, 12], [3, 15, 1, 20, 4, 24]
+    cf = stats.AverageCorrelation(
+        pearson, num_sys=2, average_by='item', pdp=True
+    )
+    corr, _, _ = cf(g, m)
+    self.assertAlmostEqual(corr, 0.968, places=3)
+    cf = stats.AverageCorrelation(
+        pearson, num_sys=2, average_by='none', pdp=True
+    )
+    corr, _, _ = cf(g, m)
+    self.assertAlmostEqual(corr, 0.975, places=3)
+
+  def testPDPLessThanTwoSystems(self):
+    """Tests that PDP raises an error for less than two systems."""
+    g, m = [1, 5, None, 10, 2, 12], [3, 15, 1, 20, 4, 24]
+    cf = stats.AverageCorrelation(
+        pearson, num_sys=1, average_by='item', pdp=True
+    )
+    with self.assertRaises(ValueError):
+      _, _, _ = cf(g, m)
+
+  def testEnumeratePairwiseDiffs(self):
+    # Single segment
+    g, m = [[1, 2, 3, 4]], [[2, 1, 8, 3]]
+    corr = stats.AverageCorrelation(pearson, num_sys=6)
+    human_pairs, metric_pairs = corr._enumerate_pairwise_diffs(g, m)
+    self.assertEqual(
+        human_pairs,
+        [[
+            0.0,
+            1.0,
+            2.0,
+            3.0,
+            -1.0,
+            0.0,
+            1.0,
+            2.0,
+            -2.0,
+            -1.0,
+            0.0,
+            1.0,
+            -3.0,
+            -2.0,
+            -1.0,
+            0.0,
+        ]],
+    )
+    self.assertEqual(
+        metric_pairs,
+        [[
+            0.0,
+            -1.0,
+            6.0,
+            1.0,
+            1.0,
+            0.0,
+            7.0,
+            2.0,
+            -6.0,
+            -7.0,
+            0.0,
+            -5.0,
+            -1.0,
+            -2.0,
+            5.0,
+            0.0,
+        ]],
+    )
+
+    # Single system
+    g, m = [[1], [2], [3], [4]], [[1], [2], [3], [4]]
+    corr = stats.AverageCorrelation(pearson, num_sys=1)
+    with self.assertRaises(ValueError):
+      _, _ = corr._enumerate_pairwise_diffs(g, m)
+
+    # With missing entries in human scores
+    g, m = [[1, 2, None], [4, None, 6]], [[2, 1, 8], [3, 5, 6]]
+    corr = stats.AverageCorrelation(pearson, num_sys=2)
+    human_pairs, metric_pairs = corr._enumerate_pairwise_diffs(g, m)
+    self.assertEqual(
+        human_pairs,
+        [
+            [0, 1, None, -1, 0, None, None, None, None],
+            [0, None, 2, None, None, None, -2, None, 0],
+        ],
+    )
+    self.assertEqual(
+        metric_pairs,
+        [[0, -1, 6, 1, 0, 7, -6, -7, 0], [0, 2, 3, -2, 0, 1, -3, -1, 0]],
+    )
 
 
 class CorrelationFunctionsTest(unittest.TestCase):

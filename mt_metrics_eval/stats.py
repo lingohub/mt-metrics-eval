@@ -87,8 +87,8 @@ class Correlation:
         corr_fcn, self.num_sys, average_by, self.none_count,
         replace_nans_with_zeros, macro, **corr_fcn_args)
 
-  def Pearson(self, average_by='none'):
-    cf = self.AverageCorrelation(scipy.stats.pearsonr, average_by)
+  def Pearson(self, average_by='none', pdp=False):
+    cf = self.AverageCorrelation(scipy.stats.pearsonr, average_by, pdp=pdp)
     return cf(self.gold_scores, self.metric_scores)
 
   def Spearman(self, average_by='none'):
@@ -222,6 +222,17 @@ class AverageCorrelation:
           filter_nones=self._filter_nones, **self._corr_fcn_args)
       return corr[0], 0, mat1.shape[0]
 
+    if self._corr_fcn_args.get('pdp'):
+      if self._corr_fcn is not scipy.stats.pearsonr:
+        raise ValueError(
+            'pdp is not supported for correlations other than Pearson. The'
+            'acronym stands for Pairwise Difference Pearson.'
+        )
+      mat1, mat2 = self._enumerate_pairwise_diffs(mat1, mat2)
+      mat1, mat2 = _Reshape(mat1, -1, 'none'), _Reshape(mat2, -1, 'none')
+    filtered_args = self._corr_fcn_args.copy()
+    filtered_args.pop('pdp', None)
+
     tot_corr, tot_pval, n, k = 0, 0, 0, 1
     with warnings.catch_warnings():
       warnings.simplefilter('ignore')
@@ -229,7 +240,7 @@ class AverageCorrelation:
         if self._filter_nones:
           r1, r2 = filter_gold_nones(r1, r2)
           if not r1 or len(r1) == 1: continue
-        ret = self._corr_fcn(r1, r2, **self._corr_fcn_args)
+        ret = self._corr_fcn(r1, r2, **filtered_args)
 
         # In scipy 14.0, Pearson correlation was changed to return a value of 0
         # if one of the input arrays is constant and Spearman was changed to
@@ -250,6 +261,67 @@ class AverageCorrelation:
         elif self._replace_nans_with_zeros:
           n += k
     return (tot_corr / n, tot_pval / n, n) if n else (0, 0, 0)
+
+  def _enumerate_pairwise_diffs(
+      self,
+      human_scores: np.ndarray,
+      metric_scores: np.ndarray,
+  ) -> tuple[np.ndarray, np.ndarray]:
+    """Calculates the intra-segment pairwise diffs of two score matrices.
+
+    None values are handled by converting them to np.nan, which propagates
+    through calculations, then back to None in the output.
+
+    Args:
+        human_scores: Numpy array of shape (S, R), where S is the number of
+          segments and R is the number of systems.
+        metric_scores: Numpy array of shape (S, R), where S is the number of
+          segments and R is the number of systems.
+
+    Returns:
+        Tuple of two 1-D NumPy arrays (flattened per segment) with the
+        element-wise differences of the human and metric scores.
+        np.nan indicates missing data or propagation from human score NaNs.
+    """
+    # Convert inputs to NumPy arrays with float dtype, Nones become np.nan.
+    human_scores_internal = np.array(human_scores, dtype=float)
+    metric_scores_internal = np.array(metric_scores, dtype=float)
+
+    assert human_scores_internal.shape == metric_scores_internal.shape, (
+        'Transposed input arrays must have the same shape. human_scores shape:'
+        f' {human_scores_internal.shape} metric_scores shape:'
+        f' {metric_scores_internal.shape}'
+    )
+
+    num_segments, num_systems = human_scores_internal.shape
+
+    if num_systems < 2:
+      raise ValueError(
+          'Pairwise diffs cannot be calculated for less than 2 systems.'
+      )
+
+    all_human_pairwise_diffs = (
+        human_scores_internal[:, np.newaxis, :]
+        - human_scores_internal[:, :, np.newaxis]
+    )
+    all_metric_pairwise_diffs = (
+        metric_scores_internal[:, np.newaxis, :]
+        - metric_scores_internal[:, :, np.newaxis]
+    )
+    # Reshape the arrays, keeping the first dimension and merging the last two.
+    all_human_pairwise_diffs = all_human_pairwise_diffs.reshape(
+        all_human_pairwise_diffs.shape[0], -1
+    )
+    all_metric_pairwise_diffs = all_metric_pairwise_diffs.reshape(
+        all_metric_pairwise_diffs.shape[0], -1
+    )
+
+    # Convert np.nan to None for the output
+    nan_mask_human = np.isnan(all_human_pairwise_diffs)
+    all_human_pairwise_diffs = all_human_pairwise_diffs.astype(object)
+    all_human_pairwise_diffs[nan_mask_human] = None
+
+    return all_human_pairwise_diffs.tolist(), all_metric_pairwise_diffs.tolist()
 
 
 def KendallLike(
