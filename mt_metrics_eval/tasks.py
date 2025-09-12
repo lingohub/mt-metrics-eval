@@ -932,3 +932,78 @@ def WMT24(lps: list[str] | None = None, primary=True, k=0, gold=None):
   weights = [w / sum(weights) for w in weights]
 
   return tasks, weights
+
+
+def WMT25(lps: list[str] | None = None, primary=True, k=0, gold=None):
+  """Generate the WMT25 task set associated weight vector."""
+
+  # Not strictly necessary to declare this, because setting human=True will
+  # only score human outputs if any are available, but we want to make the
+  # human attribute reflect what actually got used, and also want to avoid
+  # having to load the EvalSets at this point to get this info automatically.
+  lps_with_multiple_refs = {}
+
+  def Add(lp, level, corr_fcn, human, gold, **kw_args):
+    tasks.Append(
+        Task(
+            'wmt25',
+            lp,
+            level=level,
+            corr_fcn=corr_fcn,
+            human=human,
+            gold=gold,
+            primary=primary,
+            k=k,
+            **kw_args,
+        )
+    )
+
+  if lps is None:
+    lps = [
+        'ja-zh_CN',
+        'en-ko_KR',
+        'en-zh_CN',
+        'en-uk_UA',
+        'en-sr_Cyrl_RS',
+        'en-ru_RU',
+        'en-mas_KE',
+        'en-ja_JP',
+        'en-is_IS',
+        'en-it_IT',
+        'en-et_EE',
+        'en-cs_CZ',
+        'en-bho_IN',
+        'en-ar_EG',
+        'cs-uk_UA',
+        'cs-de_DE',
+    ]
+  lps = sorted(lps)
+
+  tasks = TaskSet()
+
+  # For each language pair: PCE at the system-level and accuracy at the
+  # segment-level.
+  for lp in lps:
+    human = lp in lps_with_multiple_refs
+    Add(
+        lp,
+        'sys',
+        'pce',
+        human=human,
+        gold=gold,
+    )
+    Add(
+        lp,
+        'seg',
+        'KendallWithTiesOpt',
+        human,
+        gold,
+        avg_by='item',
+        perm_test='pairs',
+        corr_fcn_args={'sample_rate': 1.0},
+    )
+
+  weights = [1] * len(tasks)
+  weights = [w / sum(weights) for w in weights]
+
+  return tasks, weights

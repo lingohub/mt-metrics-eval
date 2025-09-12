@@ -189,7 +189,67 @@ WMT24PP_DATA = {
 }
 
 
+WMT25_PRIMARIES = {
+    'EnsembleSlick',
+    'GEMBA-v2',
+    'MetricX-25',
+    'Polycand-2',
+    'SEGALE-QE',
+    'TASER-No-Ref',
+    'UvA-MT',
+    'hw-tsc',
+    'mr7_2_1',
+    'rankedCOMET',
+    'Q_Relative-MQM',
+    'comet-multi'
+}
+
+WMT25_BASELINES = {
+    'BERTScore',
+    'BLEU',
+    'chrF',
+    'spBLEU',
+    'COMET22',
+    'CometKiwi22',
+    'sentinel-cand',
+    'YiSi-1'
+}
+
+WMT25 = MetaInfo(
+    'refA',
+    {'sys': 'mqm', 'domain': 'mqm', 'seg': 'mqm'},
+    set(),
+    WMT25_PRIMARIES,
+    WMT25_BASELINES,
+)
+
+WMT25_ESA = MetaInfo(
+    'refA',
+    {'sys': 'esa', 'domain': 'esa', 'seg': 'esa'},
+    set(),
+    WMT25_PRIMARIES,
+    WMT25_BASELINES,
+)
+
 DATA = {
+    'wmt25': {
+        'ja-zh_CN': WMT25,
+        'en-ko_KR': WMT25,
+        'cs-de_DE': WMT25_ESA,
+        'cs-uk_UA': WMT25_ESA,
+        'en-ar_EG': WMT25_ESA,
+        'en-bho_IN': WMT25_ESA,
+        'en-zh_CN': WMT25_ESA,
+        'en-cs_CZ': WMT25_ESA,
+        'en-et_EE': WMT25_ESA,
+        'en-is_IS': WMT25_ESA,
+        'en-it_IT': WMT25_ESA,
+        'en-ja_JP': WMT25_ESA,
+        'en-mas_KE': WMT25_ESA,
+        'en-ru_RU': WMT25_ESA,
+        'en-sr_Cyrl_RS': WMT25_ESA,
+        'en-uk_UA': WMT25_ESA,
+    },
     'wmt24pp': WMT24PP_DATA,
     'wmt24': {
         'en-de': dataclasses.replace(WMT24, std_ref='refB'),
