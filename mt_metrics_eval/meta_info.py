@@ -194,25 +194,25 @@ WMT25_PRIMARIES = {
     'GEMBA-v2',
     'MetricX-25',
     'Polycand-2',
+    'Q_Relative-MQM',
     'SEGALE-QE',
     'TASER-No-Ref',
     'UvA-MT',
+    'comet-multi',
     'hw-tsc',
     'mr7_2_1',
-    'rankedCOMET',
-    'Q_Relative-MQM',
-    'comet-multi'
+    'rankedCOMET'
 }
 
 WMT25_BASELINES = {
     'BERTScore',
     'BLEU',
-    'chrF',
-    'spBLEU',
     'COMET22',
-    'CometKiwi22',
+    'COMETKiwi22',
+    'YiSi-1',
+    'chrF',
     'sentinel-cand',
-    'YiSi-1'
+    'spBLEU'
 }
 
 WMT25 = MetaInfo(
@@ -231,6 +231,14 @@ WMT25_ESA = MetaInfo(
     WMT25_BASELINES,
 )
 
+WMT25_ESA_NOREF = MetaInfo(
+    '',
+    {'sys': 'esa', 'domain': 'esa', 'seg': 'esa'},
+    set(),
+    WMT25_PRIMARIES,
+    WMT25_BASELINES,
+)
+
 DATA = {
     'wmt25': {
         'ja-zh_CN': WMT25,
@@ -243,7 +251,7 @@ DATA = {
         'en-cs_CZ': WMT25_ESA,
         'en-et_EE': WMT25_ESA,
         'en-is_IS': WMT25_ESA,
-        'en-it_IT': WMT25_ESA,
+        'en-it_IT': WMT25_ESA_NOREF,
         'en-ja_JP': WMT25_ESA,
         'en-mas_KE': WMT25_ESA,
         'en-ru_RU': WMT25_ESA,
