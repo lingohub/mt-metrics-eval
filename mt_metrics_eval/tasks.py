@@ -960,22 +960,24 @@ def WMT25(lps: list[str] | None = None, primary=True, k=0, gold=None):
 
   if lps is None:
     lps = [
-        'ja-zh_CN',
-        'en-ko_KR',
-        'en-zh_CN',
-        'en-uk_UA',
-        'en-sr_Cyrl_RS',
-        'en-ru_RU',
-        'en-mas_KE',
-        'en-ja_JP',
+        
+        'cs-de_DE',
+        'cs-uk_UA',
+        'en-ar_EG',
+        'en-bho_IN',
+        'en-cs_CZ',
+        'en-et_EE',
         'en-is_IS',
         'en-it_IT',
-        'en-et_EE',
-        'en-cs_CZ',
-        'en-bho_IN',
-        'en-ar_EG',
-        'cs-uk_UA',
-        'cs-de_DE',
+        'en-ja_JP',
+        'en-ko_KR',
+        'en-mas_KE',
+        'en-ru_RU',
+        'en-sr_Cyrl_RS',
+        'en-uk_UA',
+        'en-zh_CN',
+        'ja-zh_CN',
+        
     ]
   lps = sorted(lps)
 

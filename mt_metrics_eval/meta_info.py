@@ -225,15 +225,7 @@ WMT25 = MetaInfo(
 
 WMT25_ESA = MetaInfo(
     'refA',
-    {'sys': 'esa', 'domain': 'esa', 'seg': 'esa'},
-    set(),
-    WMT25_PRIMARIES,
-    WMT25_BASELINES,
-)
-
-WMT25_ESA_NOREF = MetaInfo(
-    '',
-    {'sys': 'esa', 'domain': 'esa', 'seg': 'esa'},
+    {'sys': 'esa-human1', 'domain': 'esa-human1', 'seg': 'esa-human1'},
     set(),
     WMT25_PRIMARIES,
     WMT25_BASELINES,
@@ -251,7 +243,7 @@ DATA = {
         'en-cs_CZ': WMT25_ESA,
         'en-et_EE': WMT25_ESA,
         'en-is_IS': WMT25_ESA,
-        'en-it_IT': WMT25_ESA_NOREF,
+        'en-it_IT': WMT25_ESA,
         'en-ja_JP': WMT25_ESA,
         'en-mas_KE': WMT25_ESA,
         'en-ru_RU': WMT25_ESA,
