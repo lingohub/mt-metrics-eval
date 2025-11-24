@@ -1,4 +1,5 @@
 # MT Metrics Eval V2
+_forked from [google-research/mt-metrics-eval](https://github.com/google-research/mt-metrics-eval/)_
 
 MTME is a simple toolkit to evaluate the performance of Machine Translation
 metrics on standard test sets such as those from the
@@ -25,9 +26,13 @@ API.
 You need python 3.10 or later. To install:
 
 ```bash
-git clone https://github.com/google-research/mt-metrics-eval.git
-cd mt-metrics-eval
-pip install .
+pip install git+https://github.com/lingohub/mt-metrics-eval.git
+```
+
+Add to [uv](https://docs.astral.sh/uv/) project:
+
+```bash
+uv add git+https://github.com/lingohub/mt-metrics-eval.git
 ```
 
 ## Downloading the data
@@ -35,7 +40,6 @@ pip install .
 This must be done before using the toolkit. You can either use the mtme script:
 
 ```bash
-alias mtme='python3 -m mt_metrics_eval.mtme'
 mtme --download  # Puts ~2G of data into $HOME/.mt-metrics-eval.
 ```
 
@@ -51,6 +55,7 @@ tar xfz mt-metrics-eval-v2.tgz
 Once data is downloaded, you can optionally test the install:
 
 ```bash
+git clone https://github.com/google-research/mt-metrics-eval.git
 python3 -m unittest discover mt_metrics_eval "*_test.py"  # Takes ~70 seconds.
 ```
 
@@ -225,13 +230,13 @@ If you use this data, please cite
 
 ```
 @misc{wmt24pp,
-      title={{WMT24++: Expanding the Language Coverage of WMT24 to 55 Languages & Dialects}}, 
+      title={{WMT24++: Expanding the Language Coverage of WMT24 to 55 Languages & Dialects}},
       author={Daniel Deutsch and Eleftheria Briakou and Isaac Caswell and Mara Finkelstein and Rebecca Galor and Juraj Juraska and Geza Kovacs and Alison Lui and Ricardo Rei and Jason Riesa and Shruti Rijhwani and Parker Riley and Elizabeth Salesky and Firas Trabelsi and Stephanie Winkler and Biao Zhang and Markus Freitag},
       year={2025},
       eprint={2502.12404},
       archivePrefix={arXiv},
       primaryClass={cs.CL},
-      url={https://arxiv.org/abs/2502.12404}, 
+      url={https://arxiv.org/abs/2502.12404},
 }
 ```
 
